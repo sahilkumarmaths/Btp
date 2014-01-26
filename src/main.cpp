@@ -49,9 +49,11 @@ int main()
 		//obj.print_rect_list();
 		
 		obj.fill_span_list();
-		//obj.print_span_list();
-		obj.rect_bind();
-		//obj.print_bind();
+		obj.print_span_list();
+		obj.rect_bind_space_center();
+		//obj.rect_bind_right_left();
+		obj.print_bind();
+		
 		obj.calculate_entropy();
 		obj.print_entropy();
 		

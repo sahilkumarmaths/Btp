@@ -435,7 +435,153 @@ void big_rect::fill_span_list()
 	}
 }
 
-void big_rect::rect_bind()
+/*
+ * Function: Binds the elements
+ * Property: 1) Big blocks alternatively from right another from left leaving space in middle. (Phase 1)
+ *					 2) Constructs the free space table and then binds the members to the space using the parameters
+ 								alpha and beta. (Phase 2)
+ */
+void big_rect::rect_bind_space_center(){
+
+	//Temporary schedule
+	int temp_sch[phase][process];
+	for(int i=0;i<phase;i++)
+	{
+		for(int j=0; j<process;j++)
+		{
+			temp_sch[i][j] = sch[i][j];
+		}
+	}
+	
+	int temp_id;
+	int temp_start;
+	int temp_end;
+	int temp_width;
+	int temp_assign;
+	int toggle_left = 0; // 0 means fill from left and 1 means fill from  right
+										  	//1st pass allocating the biggest blocks
+	for(int i=0; i<span_list.size(); i++)
+	{
+		temp_id = span_list[i].id;
+		temp_start = span_list[i].start;
+		temp_end = span_list[i].end;
+		temp_width = span_list[i].width;
+		
+		if(toggle_left == 0)
+		{
+				for(int j=0; j<phase; j++)
+				{
+						temp_assign = temp_sch[j][temp_id-1];
+						for(int k=temp_start; k<=temp_end ; k++)
+						{
+							if(temp_assign ==0 )
+								break;
+					
+							if(bind[j][k]==0)
+							{
+								bind[j][k] = temp_id;
+								temp_assign--;
+								temp_sch[j][temp_id-1]--;
+							}
+						}
+				}//for ends
+				toggle_left = 1;
+		}else
+		{
+				for(int j=0; j<phase; j++)
+				{
+						temp_assign = temp_sch[j][temp_id-1];
+						for(int k=temp_end; k>=temp_start ; k--)
+						{
+							if(temp_assign ==0 )
+								break;
+					
+							if(bind[j][k]==0)
+							{
+								bind[j][k] = temp_id;
+								temp_assign--;
+								temp_sch[j][temp_id-1]--;
+							}
+						}
+				}//for ends		
+				toggle_left = 0;		
+		}
+	}
+	//1st pass finished
+	
+	
+	
+	/*cout<<"Temp_Schedule:\n";
+	for(int i=0; i<phase ; i++)
+	{
+		for(int j=0; j<process; j++)
+		{
+			cout<<temp_sch[i][j] << " ";
+		}
+		cout << endl;
+	}
+	cout <<endl;
+	/*
+	//2nd pass allocating the remaining blocks
+	//This contains the final order in which the elements should be binded
+	/*vector<int> arr;
+	for(int i=1; i<=process;i++)
+	{
+		arr.push_back(i);
+	}
+	
+	for(int i=span_list.size()-1;i>=0; i--)
+	{
+		arr.erase(find(arr.begin(),arr.end(), span_list[i].id ));
+		arr.push_back(span_list[i].id);
+	}
+	
+	cout<<"Final reverse order\n";
+	for(int i=0; i<arr.size(); i++)
+	{
+		cout << arr[i]<<" "; 
+	}
+	cout <<"\n\n";
+	
+	
+	int temp_phase, temp_reg;
+	for(int j=0; j<phase;j++)
+	{
+		temp_reg = reg-1;
+		temp_phase = j;
+		for(int i=0; i<arr.size();i++)
+		{
+			temp_id = arr[i];
+			if(temp_sch[temp_phase][temp_id-1] <=0)
+			{
+				continue;
+			}
+			else
+			{
+				while(temp_reg>=0)
+				{
+					if(temp_sch[temp_phase][temp_id-1] <=0)
+						break;
+						
+					if(bind[temp_phase][temp_reg]==0)
+					{
+						bind[temp_phase][temp_reg] = temp_id;
+						temp_sch[temp_phase][temp_id-1]--;
+					}
+					temp_reg--;
+				}
+			}
+		}
+	}*/
+}
+
+
+/*
+ * Function: Binds the elements
+ * Property: 1) Big blocks first each from extreme left. (Phase 1)
+ *					 2) Then remaining in the reverse order from right to left.(Phase 2)
+ */
+void big_rect::rect_bind_right_left()
 {
 	//Temporary schedule
 	int temp_sch[phase][process];
@@ -479,7 +625,6 @@ void big_rect::rect_bind()
 				}
 			}
 		}//for ends
-		
 	}
 	
 /*	cout<<"Temp_Schedule:\n";
@@ -492,6 +637,7 @@ void big_rect::rect_bind()
 		cout << endl;
 	}
 	cout <<endl;*/
+	
 	//2nd pass allocating the remaining blocks
 	//This contains the final order in which the elements should be binded
 	vector<int> arr;
@@ -543,7 +689,6 @@ void big_rect::rect_bind()
 			}
 		}
 	}
-	
 }
 /*
  * Freeing Space

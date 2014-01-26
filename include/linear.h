@@ -82,7 +82,12 @@ class big_rect
 		void print_entropy();
 		bool isempty(int arr[], int n);
 		void fill_span_list();
-		void rect_bind();
+		
+		//Binds from right to left
+		void rect_bind_right_left();
+		//Left right space center
+		void rect_bind_space_center();
+		
 		inline int cell_entropy(int, int);
 		void  calculate_entropy();
 		int get_entropy();
