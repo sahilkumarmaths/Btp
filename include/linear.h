@@ -1,14 +1,42 @@
 #include<iostream>
 #include<limits.h>
 #include<vector>
-#include<stdio.h>
-#include<stdlib.h>
-#include<stack>
+#include<ctime>
 #include<algorithm>
+#include<stdio.h>
+#include<stack>
 #include<set>
 using namespace std;
 
+/*algorithms*/
+//shuffles elements randomly in the bind to the minimum
+void random_shuffle();
+void left_left();
+void left_right();
+void center_center();
+void optimal_bind();
 
+/*global variables*/
+extern string id;
+extern int phase, reg, process,entropy;
+extern vector<vector<int> > bind;
+extern vector<vector<int> > sch;
+
+
+/****************function for random()*************************/
+
+//binds the processes according to the sequence given
+void bind_sequence(vector<int>);
+//generates random sequence to be binded
+vector<int> generate_random_sequence();
+//returns the cell entropy in a bind
+inline int cell_entropy(int , int);
+//returns the total entropy of the bind
+int total_entropy();
+//Binds the random binding to the processors
+void random_init();
+
+/*****************function for left_left()********************/
 /*
  * area: Area of the rectangle formed
  * id : Id of the Process forming the rectangle
@@ -20,7 +48,7 @@ struct rect
 	int id;
 	int height;
 };
-
+//Spans for the list
 struct span
 {
 	int start;
@@ -28,73 +56,7 @@ struct span
 	int id;
 	int width;
 };
-
-
-class linear
-{
-	/*
-	 * sch : schedule array (phase*process)
-	 * bind : binding array (phase*reg)
-	 * phases : Total phases
-	 * id : id of process
-	 * regs : registers
-	 * rect_formed: Sorted Vector of all rectangles formed
-	 */
-	int **sch, phase, process, id ,reg;
-	int **bind;
-	int entropy;
-	
-	public:
-		void get_data();
-		void init_entropy();
-		inline int cell_entropy(int, int);
-		void simple_bind();
-		void bind_schedule(vector<int>);
-		void print_sch();
-		void print_bind();
-		void free_space();
-		int get_entropy();
-		
-		//Algorithms
-		void random_swap();
-};
-
-class big_rect
-{
-
-	int **sch, phase, process, id ,reg;
-	int **bind;
-	int entropy;
-	//Contains all the rectangles
-	vector <struct rect> rect_list;
-	vector <struct span> span_list;
-	
-	public:
-		void get_data();
-		void free_space();
-		
-		struct rect one_rect(int hist[], int n, int id);
-		void create_rect_list();
-		void print_rect_list();
-		void print_span_list();
-		void print_bind();
-		void print_sch();
-		void print_entropy();
-		bool isempty(int arr[], int n);
-		void fill_span_list();
-		
-		//Binds from right to left
-		void rect_bind_right_left();
-		//Left right space center
-		void rect_bind_space_center();
-		
-		inline int cell_entropy(int, int);
-		void  calculate_entropy();
-		int get_entropy();
-};
-
-
-//Comparator function for sorting the things
+//Comparator function for sorting rectangle list
 struct compare_big_sort
 {
 	bool operator()(struct rect const& i, struct rect const& j) 
@@ -113,3 +75,48 @@ struct compare_big_sort
   }
 };
 
+//Fills the bind register with all 0's
+void left_left_init();
+//Returns the maximum area rectangle object for a particular array of inputs
+struct rect one_rect(vector<int> hist, int id);
+//Makes all the rectangles and fills the list
+vector <struct rect> create_rect_list();
+//Returns true if the array is empty means contains all zeroes
+bool isempty(vector<int> arr);
+//Makes the final span list for filling binding the rectangles
+vector <struct span> fill_span_list(vector <struct rect> rect_list);
+
+
+
+
+
+/*funcion for left_right()*/
+
+/*funcion for center_center()*/
+/*****************function for optimal_bind()********************/
+inline int up_left_cell_entropy(int , int);
+void init_bind(int );
+void optimal_bind_sub(vector<vector<int> >temp_vector , vector<vector<int> > temp_bind,int i, int j, int temp_entropy);
+void printVector(vector< vector<int> >);
+void printArray(vector<int> );
+void valid();
+
+/*funcion in General*/
+void init();
+void execute_functions();
+
+//printers
+void printId();
+void printPhase();
+void printReg();
+void printProcess();
+void printEntropy();
+void printBind();
+void printSch();
+void printData();
+//getters
+string getId();
+int getPhase();
+int getReg();
+int getProcess();
+int getEntropy();

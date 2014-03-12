@@ -7,3 +7,7 @@ linear:
 	
 main:
 	g++ -c main.cpp -o ../obj/main.o
+
+clean:
+	rm ../obj/*.o 
+	rm ../bin/a.out
