@@ -83,7 +83,7 @@ void printSch()
   cout<<"Schedule:\n";
 	for(int i=0; i<phase; i++)
 	{
-	  for(int j=0; j<process;j++)
+	  for(int j=0; j<=process;j++)
 	  {
 	    cout<<sch[i][j]<<" ";
 	  }
@@ -207,27 +207,29 @@ void execute_functions()
 	while(t--)
 	{
 		init();
-		cout << id<<"\t"<<reg<<"\t"<<phase<<"\t"<<process<<"\t";
+		cout << id<<"\t"<<reg<<"\t"<<phase<<"\t"<<process;
 		random_init();
+		valid();
 		
 		if(opt[1] == true)
 		{
 			random_shuffle();
-			//valid();
+			valid();
 		}
 		
 		if(opt[2] == true)
 		{
-			
 			left_left_init();
 			left_left();
-			//valid();
-			
+			valid();
 		}
 		
 		if(opt[3] == true)
-		{
-			cout << "In 3"; 
+		{	//Left Right Algorithm		
+		
+			left_left_init();
+			left_right(0.5, 0.5);
+			valid();
 		}
 		
 		if(opt[4] == true)
@@ -248,12 +250,18 @@ void execute_functions()
 				left_left();
 			}
 			random_shuffle();
-			//valid();
+			valid();
 		}
 		
 		if(opt[7] == true)
 		{
-			cout << "In 7"; 
+			if(opt[3]!=true)
+			{
+				left_left_init();
+				left_right(0.5, 0.5);
+			}
+			random_shuffle();	
+			valid();
 		}
 		
 		if(opt[8] == true)
@@ -295,12 +303,14 @@ void valid()
 			{
 					if(temp_sch[i][j]!=sch[i][j])
 					{
-						printf("Error Big Error\n");
+						//printf("Error Big Error\n");
+						cout<<"\tF";
 						return ;
 					}
 			}
 	}
-	cout << "       Success ...!!!! Hurray..!!!!!";
+	//cout << "       Success ...!!!! Hurray..!!!!!";
+	cout<<"\tV";
 }
 /*********************function for random()*********************/
 
@@ -440,6 +450,8 @@ void printArray(vector<int> temp)
 	cout << endl;
 }
 
+
+
 void printVector(vector< vector<int> > temp)
 {
   for(int i=0; i<temp.size() ; i++)
@@ -451,6 +463,8 @@ void printVector(vector< vector<int> > temp)
 		cout << endl;
 	}
 }
+
+
 
 void optimal_bind_sub(vector<vector<int> >temp_vector , vector<vector<int> > temp_bind,int i, int j, int temp_entropy)
 {
@@ -676,8 +690,224 @@ vector <struct span> fill_span_list(vector <struct rect> rect_list)
 	}
 	return span_list;
 }
+/*****************function for left_right()********************/
 
+vector<vector<int> > exchangeRowColumn(vector<vector<int> > arr)
+{
+		vector<vector <int> > temp;
+		
+		temp.resize(arr[0].size());
+		for(int i=0; i<temp.size(); i++)
+			temp[i].resize(arr.size());
+			
+		for(int i=0; i<arr.size() ; i++)
+		{
+				for(int j=0; j<arr[i].size() ; j++)
+				{
+						temp[j][i] = arr[i][j];
+				}
+		}
+		return temp;
+}
 
+void printParamArray(vector<param> arr)
+{
+		cout << "Param Array:\n";
+		for(int i=0; i<arr.size(); i++)
+		{
+			cout<< "App_Index:"<<arr[i].app_index<<" Free_Space_Index:"<<arr[i].free_space_index<<"Value:"<<arr[i].value<<"\t";
+		}
+		cout << "\n\n";
+}
+
+void printFreeSpace(vector<vector<space_col> > sp)
+{
+		int row = sp.size();
+		int col = process;
+		cout << "Free Space:\n";
+		
+		for(int i=0; i<col; i++)
+		{
+				for(int j=0; j<row; j++)
+				{
+					if(j==0)
+					{
+						cout << i;
+					}
+					cout <<"\tstart:"<<sp[j][i].start<<"end:"<<sp[j][i].end<<"size:" <<sp[j][i].space;
+				}
+				cout << "\n";
+		}
+		cout << "\n"; 
+}
+
+/* 
+ * applications : Processes left to be assigned (process(all)*(phase+1)) 0th row contains process number
+ * free_space : maintatining the free_space (free_space(left)*phase)
+ */
+void phase_2(vector <vector<int> > applications, vector<vector<space_col> > free_space, double alpha, double beta)
+{
+	while(1)
+	{
+		//cout << "****************Before delete*******************************\n";
+		//cout << "Appsize :"<<applications.size() << " freesize: "<<free_space.size()<<"\n";
+		//cout<<"Schedule Left:\n";
+		//printVector(applications);
+		//printFreeSpace(free_space);
+		//printBind();
+		
+		//Redundant Filled space delete
+		for(int i=0; i<free_space.size(); i++)
+		{
+			bool check = true;
+			for(int j=0; j<phase; j++)
+			{
+				if(free_space[i][j].space!=-1)
+				{
+					check = false;
+					break;
+				}
+			}
+		
+			if(check == true)
+			{
+				//cout << "Sucess: Freespace_deleted\n";
+				free_space.erase(free_space.begin()+i);
+				i--;
+			}
+		}
+		
+		//applications delete
+		for(int i=0; i<applications.size(); i++)
+		{
+			bool check = true;
+			for(int j=1; j<phase+1; j++)
+			{
+				if(applications[i][j]<0)
+				{
+					cout << "Error: Application to be allocated less than 0\n";
+				}
+				else if(applications[i][j] !=0)
+				{
+					check= false;
+					break;
+				} 
+			}
+		
+			if(check == true)
+			{
+				//cout << "Sucess: Applications_deleted\n";
+				applications.erase(applications.begin()+i);
+				i--;
+			}
+		}
+		
+		if(applications.size()==0 || free_space.size()==0)
+		{
+			if(applications.size()!=0)
+				cout << "Error: Not all applications were binded successfully";
+				
+			break;
+		}
+	
+ 		vector<param> assigned;
+		
+		for(int i=0; i<applications.size(); i++)
+		{
+			for(int j=0; j<free_space.size(); j++)
+			{
+				double temp_parameter = 0;
+				for(int k=1; k<phase+1;k++)
+				{
+						//cout << "i:"<<i <<"j:"<<j<<"k:"<<k;
+						int temp_free_space = free_space[j][k-1].space;
+						int required  = applications[i][k];
+						if(temp_free_space ==-1)
+						{
+							temp_parameter += required*beta;
+						}else
+						{
+							int temp_value = temp_free_space - required;
+							temp_parameter += temp_value >= 0 ? alpha*temp_value : beta*(-1)*temp_value;
+						}
+						//cout<<"tempParameter"<<temp_parameter<<"\n";
+				}//for loop ends
+				param temp;
+				temp.app_index = i;
+				temp.free_space_index = j;
+				temp.value = temp_parameter;
+				assigned.push_back(temp);
+			}
+		}
+		
+		make_heap(assigned.begin(), assigned.end(), heap_comparator());
+		for(int i=0 ; i < assigned.size() ;i++)
+		//cout << assigned[i].value << " ";
+		
+		//Binding
+		for(int l=0; l < assigned.size(); l++)
+		{	
+			int app_no = assigned[l].app_index;
+			int app_id = applications[app_no][0];
+			int free_index = assigned[l].free_space_index;
+			bool worked = false;
+			
+			//cout<<"App_no:"<<app_no << " app_id:"<<app_id <<" free_index"<<free_index<<"\n";
+			
+			for(int i = 0 ; i<phase; i++)
+			{
+				int left, right;
+				int free_space_start = free_space[free_index][i].start;
+				int free_space_end = free_space[free_index][i].end;
+				int free_space_space = free_space[free_index][i].space;
+				int to_be_assigned= applications[app_no][i+1];   
+				
+				//cout<<"phase:"<<i<<"start:"<<free_space_start<<" end:"<<free_space_end<<" space:"<<free_space_space<<" to_be_assigned:"<<to_be_assigned;
+				if(free_space_space == -1)
+				{
+					//cout<<"No FreeSpace\n";
+					continue;
+				}
+				
+				left = free_space_start;
+				if(to_be_assigned >= free_space_space)
+				{
+					right = left+free_space_space-1;
+					applications[app_no][i+1] -= free_space_space;
+					free_space[free_index][i].space = -1;
+					free_space[free_index][i].start = right+1; 
+					free_space[free_index][i].end = right; 
+				}else
+				{
+					right = left+to_be_assigned-1;
+					applications[app_no][i+1] -= to_be_assigned;
+					free_space[free_index][i].space -= to_be_assigned;
+					free_space[free_index][i].start = right+1; 
+					//free_space[free_index][i].end remains as is.
+				}
+				
+				//cout<<" left:"<<left<<" right:"<<right<<"\n"; 
+				for(int k=left; k<=right ; k++)
+				{
+					if(bind[i][k] ==0)
+					{
+						//cout<<"Adding i:"<<i<<" k:"<<k<<" app_id:"<<app_id;
+						worked = true;
+						bind[i][k] = app_id;
+						//cout<<" bind[i][k]:"<<bind[i][k]<<"\n";
+					}else
+					{
+						cout << "Error: Space booked but should be free\n";	
+					}
+				}
+			}
+			if(worked == true)
+				break;
+		}//binding completes
+		//cout<<"***********************After*************\n";
+		//printBind();
+	}//while ends	
+}
 
 /***********************Algorithm******************************/
 
@@ -840,4 +1070,125 @@ void left_left()
 		}
 	}
 	cout<<"\t"<<total_entropy();
+}
+
+/*
+ * Function: Binds the elements
+ * Property: 1) Big blocks first alternate from left then right. (Phase 1)
+ *			 2) Remaining in taking the conditions on the optimal fit.(Phase 2)
+ */
+void left_right(double alpha, double beta)
+{
+	//cout << "In left Right\n";
+	//Temporary Schedule
+	vector <vector<int> > temp_sch;
+	temp_sch.resize(phase+1);
+	for(int i=0; i<phase+1 ; i++)
+	{
+		temp_sch[i].resize(process);
+	}
+	
+	for(int i=0;i<sch.size();i++)
+	{
+		for(int j=0; j<sch[i].size();j++)
+		{
+			temp_sch[i][j] = sch[i][j];
+		}
+	}
+	
+	//Getting span_list
+	vector <struct rect> rect_list = create_rect_list();
+	vector <struct span> span_list = fill_span_list(rect_list);
+	vector<vector<space_col> > free_space;
+	//Initializing the free_space vector
+	free_space.resize( ceil(span_list.size()/2.0));
+	for(int i=0;i<free_space.size();i++)
+		free_space[i].resize(process);
+	
+	int temp_id;
+	int temp_start;
+	int temp_end;
+	int temp_width;
+	int temp_assign;
+	int left;
+	int right;
+	int span_size = span_list.size();
+	//cout<<"\ntemporary schedule Before\n";
+	//printVector(temp_sch);
+	//1st pass allocating the biggest blocks
+	for(int i=0; i<span_size; i++)
+	{
+		temp_id = span_list[i].id;
+		temp_start = span_list[i].start;
+		temp_end = span_list[i].end;
+		temp_width = span_list[i].width;
+		
+		for(int j=0;j<phase;j++)
+		{
+			temp_assign = temp_sch[j+1][temp_id-1];
+			
+			if(i%2==0) // Left to right
+			{
+				left = temp_start;
+				
+				if(temp_assign >= temp_width)
+				{
+					right = left+temp_width-1;
+					temp_sch[j+1][temp_id-1] -= temp_width;
+				}else
+				{
+					right = left+temp_assign-1;
+					temp_sch[j+1][temp_id-1] -= temp_assign;
+				}
+				
+				free_space[i/2][j].start = right+1;
+				//ODD number
+				if(span_size%2 !=0 && i==span_size-1)
+				{
+					if(temp_assign >=temp_width)
+					{
+						free_space[i/2][j].end = right;
+						free_space[i/2][j].space = -1;
+					}else
+					{
+						free_space[i/2][j].end = reg-1;
+						free_space[i/2][j].space = free_space[i/2][j].end - free_space[i/2][j].start + 1;
+					}
+				}
+			}else //right
+			{
+				right = temp_end;
+				if(temp_assign>=temp_width)
+				{
+					left = right-temp_width+1;
+					temp_sch[j+1][temp_id-1] -= temp_width;
+				}else
+				{
+					left = right-temp_assign+1;
+					temp_sch[j+1][temp_id-1] -= temp_assign;
+				}
+				//cout << "Left to right : left: " << left << " right: "<<right<<"\n";
+				free_space[i/2][j].end = left-1;
+				
+				if(free_space[i/2][j].end< free_space[i/2][j].start )
+				{
+					free_space[i/2][j].space = -1;
+				}else
+				{
+					free_space[i/2][j].space = free_space[i/2][j].end - free_space[i/2][j].start + 1; 
+				}
+			}
+			for(int k=left; k<=right ; k++)
+			{
+				bind[j][k] = temp_id;
+			}
+		}
+	}
+	//printFreeSpace(free_space);
+	//cout<<"\ntemporary schedule After\n";
+	//printVector(temp_sch);
+	//phase_2(vector <vector<int> > temp_sch, vector<vector<space_col> > free_space,vector<vector<int> >bind, int alpha, int beta);
+	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
+	cout<<"\t"<<total_entropy();
+	
 }

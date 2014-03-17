@@ -6,13 +6,14 @@
 #include<stdio.h>
 #include<stack>
 #include<set>
+#include<math.h>
 using namespace std;
 
 /*algorithms*/
 //shuffles elements randomly in the bind to the minimum
 void random_shuffle();
 void left_left();
-void left_right();
+void left_right(double,double);
 void center_center();
 void optimal_bind();
 
@@ -86,11 +87,31 @@ bool isempty(vector<int> arr);
 //Makes the final span list for filling binding the rectangles
 vector <struct span> fill_span_list(vector <struct rect> rect_list);
 
+/*****************function for left_right()********************/
+typedef struct space_col
+{
+	int start;
+	int end;
+	int space;
+}space_col;
 
+typedef struct param
+{
+	int app_index;
+	int free_space_index;
+	double value;	//alpha*free+ beta*Overshoot
+}param;
 
-
-
-/*funcion for left_right()*/
+struct heap_comparator{
+  bool operator()(param& a,param & b) const{
+    return a.value>b.value;
+  }
+};
+//alpha free parameter
+//beta overshoot parameter
+void printFreeSpace(vector<vector<space_col> > );
+void printParamArray(vector<param> );
+void phase_2(vector <vector<int> > , vector<vector<space_col> > , double, double);
 
 /*funcion for center_center()*/
 /*****************function for optimal_bind()********************/
