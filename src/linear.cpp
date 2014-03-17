@@ -214,22 +214,24 @@ void execute_functions()
 		if(opt[1] == true)
 		{
 			random_shuffle();
-			valid();
+			//valid();
 		}
 		
 		if(opt[2] == true)
 		{
 			left_left_init();
 			left_left();
-			valid();
+			//valid();
 		}
 		
 		if(opt[3] == true)
 		{	//Left Right Algorithm		
-		
-			left_left_init();
-			left_right(0.5, 0.5);
-			valid();
+			for(double i=0.0; i<=1.0; i = i+ 0.1)
+			{
+				left_left_init();
+				left_right(i, 1-i);
+			}
+			//valid();
 		}
 		
 		if(opt[4] == true)
@@ -1079,6 +1081,7 @@ void left_left()
  */
 void left_right(double alpha, double beta)
 {
+	//cout << " "<<alpha <<" "<< beta;
 	//cout << "In left Right\n";
 	//Temporary Schedule
 	vector <vector<int> > temp_sch;
