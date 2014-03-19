@@ -15,8 +15,8 @@ vector<vector<int> > sch;
 void init()
 {
 	cin>>id>>reg>>phase>>process;
-	sch.resize(1);
-	bind.resize(1);
+	sch.clear();
+	bind.clear();
 	
 	//allocating space for schedule
 	sch.resize(phase+1);
