@@ -1,6 +1,6 @@
 #include"../include/linear.h"
 
-string id;
+int id;
 int phase, reg, process,entropy;
 vector<vector<int> > bind;
 vector<vector<int> > sch;
@@ -15,8 +15,9 @@ vector<vector<int> > sch;
 void init()
 {
 	cin>>id>>reg>>phase>>process;
-	sch.clear();
-	bind.clear();
+	sch.resize(1);
+	bind.resize(1);
+	
 	//allocating space for schedule
 	sch.resize(phase+1);
 	for(int i=0; i<phase+1 ; i++)
@@ -100,7 +101,7 @@ void printData()
   printEntropy();
   cout<<endl;
 }
-string getId()
+int getId()
 {
   return id;
 }
@@ -230,9 +231,12 @@ void execute_functions()
 			//{
 				left_left_init();
 				//left_right(i, 1-i);
+				//printSch();
+				//printBind();
 				left_right(0.5,0.5);
+				//printBind();
 			//}
-			//valid();
+			valid();
 		}
 		
 		if(opt[4] == true)
@@ -516,6 +520,22 @@ void optimal_bind_sub(vector<vector<int> >temp_vector , vector<vector<int> > tem
  }  
 }
 /*****************function for left_left()********************/
+bool compare_big_sort(struct rect const& i, struct rect const& j) 
+{
+    if(i.area>j.area)
+		return true;
+	else if(i.area==j.area)
+	{
+		if(i.height<=j.height)
+			return true;
+		else
+			return false;
+	}
+	else
+		return false;
+}
+
+
 //Fills the bind register with all 0's
 void left_left_init()
 {
@@ -529,7 +549,7 @@ void left_left_init()
 }
 
 //Returns the maximum area rectangle object for a particular array of inputs
-struct rect one_rect(vector<int> hist, int id)
+struct rect one_rect(vector<int> hist, int ide)
 {
     stack<int> s;
  
@@ -579,7 +599,7 @@ struct rect one_rect(vector<int> hist, int id)
         }
     }
     struct rect big_rect_obj;
-    big_rect_obj.id = id;
+    big_rect_obj.id = ide;
     big_rect_obj.height = height;
     big_rect_obj.area =  max_area;
     return big_rect_obj;
@@ -636,7 +656,8 @@ vector <struct rect> create_rect_list()
 			}
 		}
 	}
-	sort(rect_list.begin(), rect_list.end(), compare_big_sort());
+	
+	sort(rect_list.begin(), rect_list.end(), compare_big_sort);
 	return rect_list;
 }
 
@@ -994,8 +1015,10 @@ void left_left()
 	}
 	
 	//Getting span_list
-	vector <struct rect> rect_list = create_rect_list();
-	vector <struct span> span_list = fill_span_list(rect_list);
+	vector <struct rect> rect_list;
+	rect_list = create_rect_list();
+	vector <struct span> span_list;
+	span_list = fill_span_list(rect_list);
 	
 	int temp_id;
 	int temp_start;
@@ -1115,10 +1138,13 @@ void left_right(double alpha, double beta)
 	vector <struct rect> rect_list = create_rect_list();
 	vector <struct span> span_list = fill_span_list(rect_list);
 	vector<vector<space_col> > free_space;
+	
 	//Initializing the free_space vector
 	free_space.resize( ceil(span_list.size()/2.0));
 	for(int i=0;i<free_space.size();i++)
-		free_space[i].resize(process);
+		free_space[i].resize(phase);
+		
+	//cout << "\nSapn List size: "<<span_list.size()<<" free_space_size"<<free_space.size() << " per:"<<free_space[0].size()<<endl;
 	
 	int temp_id;
 	int temp_start;
@@ -1128,8 +1154,10 @@ void left_right(double alpha, double beta)
 	int left;
 	int right;
 	int span_size = span_list.size();
+	
 	//cout<<"\ntemporary schedule Before\n";
 	//printVector(temp_sch);
+	
 	//1st pass allocating the biggest blocks
 	for(int i=0; i<span_size; i++)
 	{
@@ -1141,6 +1169,7 @@ void left_right(double alpha, double beta)
 		for(int j=0;j<phase;j++)
 		{
 			temp_assign = temp_sch[j+1][temp_id-1];
+			//cout<<"i: "<<i<<" j:"<<j <<"\n";
 			
 			if(i%2==0) // Left to right
 			{
@@ -1182,7 +1211,7 @@ void left_right(double alpha, double beta)
 					left = right-temp_assign+1;
 					temp_sch[j+1][temp_id-1] -= temp_assign;
 				}
-				//cout << "Left to right : left: " << left << " right: "<<right<<"\n";
+				
 				free_space[i/2][j].end = left-1;
 				
 				if(free_space[i/2][j].end< free_space[i/2][j].start )
@@ -1193,16 +1222,18 @@ void left_right(double alpha, double beta)
 					free_space[i/2][j].space = free_space[i/2][j].end - free_space[i/2][j].start + 1; 
 				}
 			}
+			//cout << "Left to right : left: " << left << " right: "<<right<<"\n";
 			for(int k=left; k<=right ; k++)
 			{
 				bind[j][k] = temp_id;
 			}
 		}
 	}
+	
 	//printFreeSpace(free_space);
 	//cout<<"\ntemporary schedule After\n";
 	//printVector(temp_sch);
-	//phase_2(vector <vector<int> > temp_sch, vector<vector<space_col> > free_space,vector<vector<int> >bind, int alpha, int beta);
+	
 	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
 	cout<<"\t"<<total_entropy();
 }
@@ -1241,8 +1272,9 @@ void center_center(double alpha, double beta)
 	//Initializing the free_space vector
 	free_space.resize( span_list.size() + 1);
 	for(int i=0;i<free_space.size();i++)
-		free_space[i].resize(process);
-	for(int i=0; i<process; i++)
+		free_space[i].resize(phase);
+		
+	for(int i=0; i<phase; i++)
 	{
 		free_space[0][i].start = 0;
 	}
@@ -1331,7 +1363,7 @@ void center_center(double alpha, double beta)
 		}
 	}
 	
-	for(int i=0; i<process; i++)
+	for(int i=0; i<phase; i++)
 	{
 		free_space[span_size][i].end = reg - 1;
 		if( free_space[span_size][i].end < free_space[span_size][i].start)
