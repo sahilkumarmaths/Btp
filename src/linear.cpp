@@ -81,9 +81,9 @@ void printBind()
 void printSch()
 {
   cout<<"Schedule:\n";
-	for(int i=0; i<phase; i++)
+	for(int i=0; i<phase+1; i++)
 	{
-	  for(int j=0; j<=process;j++)
+	  for(int j=0; j<process;j++)
 	  {
 	    cout<<sch[i][j]<<" ";
 	  }
@@ -214,29 +214,37 @@ void execute_functions()
 		if(opt[1] == true)
 		{
 			random_shuffle();
-			//valid();
+			valid();
 		}
 		
 		if(opt[2] == true)
 		{
 			left_left_init();
 			left_left();
-			//valid();
+			valid();
 		}
 		
 		if(opt[3] == true)
-		{	//Left Right Algorithm		
-			for(double i=0.0; i<=1.0; i = i+ 0.1)
-			{
+		{	
+			//for(double i=0.0; i<=1.0; i = i+ 0.1)
+			//{
 				left_left_init();
-				left_right(i, 1-i);
-			}
+				//left_right(i, 1-i);
+				left_right(0.5,0.5);
+			//}
 			//valid();
 		}
 		
 		if(opt[4] == true)
 		{
-			cout << "In 4"; 
+			//for(double i=0.0; i<=1.0; i = i+ 0.1)
+			//{
+				left_left_init();
+				//center_center(i, 1-i);
+				center_center(0.5, 0.5);
+				valid();
+			//}
+			
 		}
 		
 		if(opt[5] == true)
@@ -268,10 +276,14 @@ void execute_functions()
 		
 		if(opt[8] == true)
 		{
-			cout << "In 8"; 
+			if(opt[4]!=true)
+			{
+				left_left_init();
+				center_center(0.5, 0.5);
+			}
+			random_shuffle();	
+			valid();
 		}
-		
-		
 		cout << "\n";
     
 	}
@@ -1193,5 +1205,147 @@ void left_right(double alpha, double beta)
 	//phase_2(vector <vector<int> > temp_sch, vector<vector<space_col> > free_space,vector<vector<int> >bind, int alpha, int beta);
 	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
 	cout<<"\t"<<total_entropy();
+}
+
+/*
+ * Function: Binds the elements
+ * Property: 1) Big blocks first From Center (Phase 1)
+ *			 2) Remaining in taking the conditions on the optimal fit.(Phase 2)
+ */
+void center_center(double alpha, double beta)
+{
+	//cout << " "<<alpha <<" "<< beta;
+	//cout << "\n\nIn Center Center\n";
+	//Temporary Schedule
+	vector <vector<int> > temp_sch;
+	temp_sch.resize(phase+1);
+	for(int i=0; i<phase+1 ; i++)
+	{
+		temp_sch[i].resize(process);
+	}
 	
+	for(int i=0;i<sch.size();i++)
+	{
+		for(int j=0; j<sch[i].size();j++)
+		{
+			temp_sch[i][j] = sch[i][j];
+		}
+	}
+	//cout << "temporary Schedule: \n"; 
+	//printVector(temp_sch);
+	
+	//Getting span_list
+	vector <struct rect> rect_list = create_rect_list();
+	vector <struct span> span_list = fill_span_list(rect_list);
+	vector<vector<space_col> > free_space;
+	//Initializing the free_space vector
+	free_space.resize( span_list.size() + 1);
+	for(int i=0;i<free_space.size();i++)
+		free_space[i].resize(process);
+	for(int i=0; i<process; i++)
+	{
+		free_space[0][i].start = 0;
+	}
+	
+	int temp_id;
+	int temp_start;
+	int temp_end;
+	int temp_width;
+	int temp_assign;
+	int left;
+	int right;
+	int span_size = span_list.size();
+	
+	
+	//1st pass allocating the biggest blocks
+	for(int i=0; i<span_size; i++)
+	{
+		temp_id = span_list[i].id;
+		temp_start = span_list[i].start;
+		temp_end = span_list[i].end;
+		temp_width = span_list[i].width;
+		
+		for(int j=0;j<phase;j++)
+		{
+			temp_assign = temp_sch[j+1][temp_id-1];
+			
+			if(temp_assign >= temp_width)
+			{
+					left = temp_start;
+					right = left+temp_width-1;
+					temp_sch[j+1][temp_id-1] -= temp_width;
+			}else
+			{
+				int c;
+				int tr, tl;	//assigned left including center and assigned right
+				
+				if(temp_width%2 ==0 && temp_assign%2 ==0) //Even Even
+				{
+					c = (temp_start + temp_end)/2;	//left of center
+					tr = tl = temp_assign/2;
+					
+					right = c+tr;
+					left = c-tl + 1;
+					
+				}else if (temp_width%2 ==0 && temp_assign%2 !=0) //Even Odd
+				{
+					c = (temp_start + temp_end)/2;	//left of center
+					tr = ceil(temp_assign/2.0);		//One more to right
+					tl = temp_assign/2;
+					
+					right = c+tr;
+					left = c-tl + 1;
+				}else if(temp_width%2 !=0 && temp_assign%2 ==0) //Odd Even
+				{
+					c = (temp_start + temp_end)/2;	//Exact center
+					tr = tl = temp_assign/2;
+					
+					right = c+tr;
+					left = c-tl+1;
+				}else if(temp_width%2 !=0 && temp_assign%2 !=0) //Odd Odd
+				{
+					c = (temp_start + temp_end)/2;	//Exact center
+					tr = temp_assign/2;
+					tl = ceil(temp_assign/2.0);
+					
+					right = c+tr;
+					left = c-tl+1;
+				}
+				temp_sch[j+1][temp_id-1] -= temp_assign;
+			}
+			
+			//Free Space manipulation
+			free_space[i][j].end = left - 1;
+			if(free_space[i][j].end < free_space[i][j].start)
+				free_space[i][j].space = -1;
+			else
+			{
+				free_space[i][j].space = free_space[i][j].end - free_space[i][j].start + 1;
+			}
+			free_space[i+1][j].start = right+1;
+			
+			for(int k=left; k<=right ; k++)
+			{
+				bind[j][k] = temp_id;
+			}
+		}
+	}
+	
+	for(int i=0; i<process; i++)
+	{
+		free_space[span_size][i].end = reg - 1;
+		if( free_space[span_size][i].end < free_space[span_size][i].start)
+		{
+			free_space[span_size][i].space = -1;
+		}else
+		{
+				free_space[span_size][i].space  = free_space[span_size][i].end - free_space[span_size][i].start + 1; 
+		}
+	}
+	
+	//printFreeSpace(free_space);
+	//cout<<"\ntemporary schedule After\n";
+	//printVector(temp_sch);
+	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
+	cout<<"\t"<<total_entropy();
 }

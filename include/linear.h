@@ -14,7 +14,7 @@ using namespace std;
 void random_shuffle();
 void left_left();
 void left_right(double,double);
-void center_center();
+void center_center(double , double );
 void optimal_bind();
 
 /*global variables*/
