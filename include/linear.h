@@ -1,3 +1,7 @@
+/*
+ * Date		:	17th March 2014
+ * Language	:	C++
+ */
 #include<iostream>
 #include<limits.h>
 #include<vector>
@@ -9,21 +13,21 @@
 #include<math.h>
 using namespace std;
 
-/*algorithms*/
+//algorithms
 //shuffles elements randomly in the bind to the minimum
 void random_shuffle();
 void left_left();
-void left_right(double,double);
-void center_center(double , double );
+void left_right(double, double);
+void center_center(double , double);
 void optimal_bind();
 
-/*global variables*/
+//global variables
 extern int id;
 extern int phase, reg, process,entropy;
 extern vector<vector<int> > bind;
 extern vector<vector<int> > sch;
 
-/****************function for random()*************************/
+/***************function for random()*************************/
 
 //binds the processes according to the sequence given
 void bind_sequence(vector<int>);
@@ -38,9 +42,9 @@ void random_init();
 
 /*****************function for left_left()********************/
 /*
- * area: Area of the rectangle formed
- * id : Id of the Process forming the rectangle
- * height: the width/registers it spans
+ * area		: Area of the rectangle formed
+ * id 		: Id of the Process forming the rectangle
+ * height	: the width/registers it spans
  */
 struct rect
 {
@@ -48,7 +52,13 @@ struct rect
 	int id;
 	int height;
 };
-//Spans for the list
+
+/*
+ * start 	:	Starting point of span
+ * end		:	Ending point of span
+ * id	 	:	Id of Process
+ * width	:	Width the process spans
+ */
 struct span
 {
 	int start;
@@ -56,21 +66,26 @@ struct span
 	int id;
 	int width;
 };
-//Comparator function for sorting rectangle list
-bool compare_big_sort(struct rect const& i, struct rect const& j);
 
+//Comparator function for sorting rectangle list
+bool compare_big_sort(struct rect const&, struct rect const& );
 //Fills the bind register with all 0's
 void left_left_init();
 //Returns the maximum area rectangle object for a particular array of inputs
-struct rect one_rect(vector<int> , int );
+struct rect one_rect(vector<int> , int);
 //Makes all the rectangles and fills the list
 vector <struct rect> create_rect_list();
 //Returns true if the array is empty means contains all zeroes
-bool isempty(vector<int> );
+bool isempty(vector<int>);
 //Makes the final span list for filling binding the rectangles
-vector <struct span> fill_span_list(vector <struct rect> );
+vector <struct span> fill_span_list(vector <struct rect>);
 
 /*****************function for left_right()********************/
+/*
+ * start	:	Start of Free Space
+ * end		:	End of Free Space
+ * space	: 	Free Space there
+ */
 typedef struct space_col
 {
 	int start;
@@ -78,34 +93,41 @@ typedef struct space_col
 	int space;
 }space_col;
 
+/*
+ * app_index		:	Application Index	
+ * free_space_index	:	Free Space Index
+ * value			:	(alpha*free+ beta*Overshoot) value
+ */
 typedef struct param
 {
 	int app_index;
 	int free_space_index;
-	double value;	//alpha*free+ beta*Overshoot
+	double value;
 }param;
 
+//Comparator
 struct heap_comparator{
   bool operator()(param& a,param & b) const{
     return a.value>b.value;
   }
 };
-//alpha free parameter
-//beta overshoot parameter
-void printFreeSpace(vector<vector<space_col> > );
-void printParamArray(vector<param> );
+
+//Alpha	:	Free parameter
+//Beta	:	Overshoot parameter
+
+void printFreeSpace(vector<vector<space_col> >);
+void printParamArray(vector<param>);
 void phase_2(vector <vector<int> > , vector<vector<space_col> > , double, double);
 
-/*funcion for center_center()*/
 /*****************function for optimal_bind()********************/
 inline int up_left_cell_entropy(int , int);
-void init_bind(int );
+void init_bind(int);
 void optimal_bind_sub(vector<vector<int> > , vector<vector<int> > ,int , int , int );
 void printVector(vector< vector<int> >);
 void printArray(vector<int> );
 void valid();
 
-/*funcion in General*/
+/*****************funcion in General****************************/
 void init();
 void execute_functions();
 
@@ -118,6 +140,7 @@ void printEntropy();
 void printBind();
 void printSch();
 void printData();
+
 //getters
 int getId();
 int getPhase();

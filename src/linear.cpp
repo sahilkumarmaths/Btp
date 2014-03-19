@@ -1,3 +1,8 @@
+/*
+ * Date		:	17th March 2014
+ * Language	:	C++
+ */
+ 
 #include"../include/linear.h"
 
 int id;
@@ -5,12 +10,11 @@ int phase, reg, process,entropy;
 vector<vector<int> > bind;
 vector<vector<int> > sch;
 
-
 /************General Functions*****************/
 /*
  * Initializes variables:
-        id, reg, phase, process, sch[phase+1][process],
-        bind[phase][reg], entropy
+ *       id, reg, phase, process, sch[phase+1][process],
+ *       bind[phase][reg], entropy
  */
 void init()
 {
@@ -21,9 +25,7 @@ void init()
 	//allocating space for schedule
 	sch.resize(phase+1);
 	for(int i=0; i<phase+1 ; i++)
-	{
 		sch[i].resize(process);
-	}
 	
 	//taking schedule
 	for(int i=0; i<phase+1; i++)
@@ -40,9 +42,7 @@ void init()
 	//Allocating space for binding
 	bind.resize(phase);
 	for(int i=0; i<phase ; i++)
-	{
 		bind[i].resize(reg);
-	}
 	entropy = INT_MAX;
 }
 
@@ -145,7 +145,7 @@ void execute_functions()
 	cin >> choice;
 	cin >> t;
 	
-	if(choice <= 0 )					//TODO: only numbers check is missing
+	if(choice <= 0 )		//TODO: only numbers check is missing
 	{
 			cout << "Error: Wrong Input";
 			exit(0);
@@ -231,10 +231,7 @@ void execute_functions()
 			//{
 				left_left_init();
 				//left_right(i, 1-i);
-				//printSch();
-				//printBind();
 				left_right(0.5,0.5);
-				//printBind();
 			//}
 			valid();
 		}
@@ -327,7 +324,7 @@ void valid()
 					}
 			}
 	}
-	//cout << "       Success ...!!!! Hurray..!!!!!";
+	//cout << "!!!!!....Success ...!!!! Hurray..!!!!!";
 	cout<<"\tV";
 }
 /*********************function for random()*********************/
@@ -363,11 +360,6 @@ vector<int> generate_random_sequence()
   for(int i=1; i<=process; i++)
     seq.push_back(i);
   random_shuffle ( seq.begin(), seq.end() );
-/*  cout << "Random Sequence:: \n";
-  for(int i=0; i<seq.size();i++)
-    cout << seq[i]<<" ";
-  cout << "\n";  
-*/
   return seq;
 }
 
@@ -468,8 +460,6 @@ void printArray(vector<int> temp)
 	cout << endl;
 }
 
-
-
 void printVector(vector< vector<int> > temp)
 {
   for(int i=0; i<temp.size() ; i++)
@@ -481,9 +471,7 @@ void printVector(vector< vector<int> > temp)
 		cout << endl;
 	}
 }
-
-
-
+//TODO
 void optimal_bind_sub(vector<vector<int> >temp_vector , vector<vector<int> > temp_bind,int i, int j, int temp_entropy)
 {
  if(i+1 == phase)
@@ -519,6 +507,7 @@ void optimal_bind_sub(vector<vector<int> >temp_vector , vector<vector<int> > tem
   }
  }  
 }
+
 /*****************function for left_left()********************/
 bool compare_big_sort(struct rect const& i, struct rect const& j) 
 {
@@ -534,7 +523,6 @@ bool compare_big_sort(struct rect const& i, struct rect const& j)
 	else
 		return false;
 }
-
 
 //Fills the bind register with all 0's
 void left_left_init()
@@ -552,7 +540,6 @@ void left_left_init()
 struct rect one_rect(vector<int> hist, int ide)
 {
     stack<int> s;
- 
     int max_area = 0; 		// Initalize max area
     int tp;  				// To store top of stack
     int area_with_top;	
@@ -623,7 +610,6 @@ bool isempty(vector<int> arr)
  */
 vector <struct rect> create_rect_list()
 {
-	//cout << "In create_rect_list\n";
 	vector <int>temp;
 	vector <struct rect> rect_list;
 	
@@ -635,7 +621,6 @@ vector <struct rect> create_rect_list()
 		{
 			temp.push_back(sch[j][i]);
 		}
-		//printArray(temp);
 		while(1)
 		{
 			if(isempty(temp))
@@ -656,7 +641,6 @@ vector <struct rect> create_rect_list()
 			}
 		}
 	}
-	
 	sort(rect_list.begin(), rect_list.end(), compare_big_sort);
 	return rect_list;
 }
@@ -725,6 +709,7 @@ vector <struct span> fill_span_list(vector <struct rect> rect_list)
 	}
 	return span_list;
 }
+
 /*****************function for left_right()********************/
 
 vector<vector<int> > exchangeRowColumn(vector<vector<int> > arr)
@@ -790,7 +775,6 @@ void phase_2(vector <vector<int> > applications, vector<vector<space_col> > free
 		//printVector(applications);
 		//printFreeSpace(free_space);
 		//printBind();
-		
 		//Redundant Filled space delete
 		for(int i=0; i<free_space.size(); i++)
 		{
@@ -811,7 +795,6 @@ void phase_2(vector <vector<int> > applications, vector<vector<space_col> > free
 				i--;
 			}
 		}
-		
 		//applications delete
 		for(int i=0; i<applications.size(); i++)
 		{
@@ -828,7 +811,6 @@ void phase_2(vector <vector<int> > applications, vector<vector<space_col> > free
 					break;
 				} 
 			}
-		
 			if(check == true)
 			{
 				//cout << "Sucess: Applications_deleted\n";
