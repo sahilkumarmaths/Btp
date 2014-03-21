@@ -19,6 +19,7 @@ void random_shuffle();
 void left_left();
 void left_right(double, double);
 void center_center(double , double);
+void simulated_annealing();
 void optimal_bind();
 
 //global variables
@@ -37,9 +38,17 @@ vector<int> generate_random_sequence();
 inline int cell_entropy(int , int);
 //returns the total entropy of the bind
 int total_entropy();
+int total_entropy(vector<vector<int> > );
 //Binds the random binding to the processors
 void random_init();
 
+/***************function for simulated_annealing()************/
+//Returns the probaility for acceptance
+double prob(int e, int enew, double temperature);
+//Copies bind in the sent vector
+void copy_bind(vector<vector <int> >& );
+//Returns the new vector of size same as of bind initialized to 0
+vector< vector<int> > return_bind();
 /*****************function for left_left()********************/
 /*
  * area		: Area of the rectangle formed

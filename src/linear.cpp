@@ -137,7 +137,7 @@ void execute_functions()
 	 * cout << "\t2. Left Left Algorithm\n";
 	 * cout << "\t3. Left Right Algorithm\n";
 	 * cout << "\t4. Center Center Algorithm\n";
-	 * cout << "\t5. Optimal Algorithm\n";
+	 * cout << "\t5. Simulated Annealing\n";
 	 * cout << "\t6. Left Left Random Algorithm\n";
 	 * cout << "\t7. Left Right Random Algorithm\n";
 	 * cout << "\t8. Center Center Random Algorithm\n";
@@ -187,7 +187,7 @@ void execute_functions()
 	
 	if(opt[5] == true)
 	{
-		cout<<"\tOptimal_Value";
+		cout<<"\tSimulated_Value";
 	}
 	
 	if(opt[6] == true)
@@ -250,7 +250,8 @@ void execute_functions()
 		
 		if(opt[5] == true)
 		{
-			cout << "In 5"; 
+			simulated_annealing();
+			valid();
 		}
 		
 		if(opt[6] == true)
@@ -396,6 +397,38 @@ inline int cell_entropy(int i, int j)
 	return counter;
 }
 
+inline int cell_entropy(vector<vector<int> > temp, int i, int j)
+{
+	int counter = 0;
+	if(i>=0 && j>=0 && i<temp.size() && j<temp[0].size())
+	{
+		if(temp[i][j] == 0)
+			return 0;
+				
+		if( j+1 < reg && temp[i][j] != temp[i][j+1] && temp[i][j+1]!=0)
+		{
+			counter++;
+			//cout <<" Right ";
+		}
+		if( j-1 >= 0 && temp[i][j] != temp[i][j-1] && temp[i][j-1]!=0)
+		{
+			counter++;
+			//cout <<" Left ";
+		}
+		if( i+1 < phase && temp[i][j] != temp[i+1][j] && temp[i+1][j]!=0)
+		{
+			counter++;
+			//cout <<" Bottom ";
+		}
+		if( i-1 >= 0 && temp[i][j] != temp[i-1][j] && temp[i-1][j]!=0)
+		{
+			counter++;
+			//cout <<" UP ";
+		}
+	}
+	return counter;
+}
+
 //returns the total entropy of the bind
 int total_entropy()
 {
@@ -411,12 +444,61 @@ int total_entropy()
 	return counter;
 }
 
+int total_entropy(vector<vector<int> > temp)
+{
+	int counter = 0;
+	for(int i=0; i<temp.size(); i++)
+	{
+		for(int j=0; j<temp[i].size(); j++)
+		{
+			counter += cell_entropy(temp,i, j);
+			
+		}
+	}
+	return counter;
+}
+
 //Function inits the random bind 
 void random_init()
 {
 	srand(time(NULL));
 	bind_sequence(generate_random_sequence());
     cout<<"\t"<<total_entropy();	
+}
+
+/*********************function for annealing()*********************/
+
+double prob(int e, int enew, double temperature)
+{
+		return 1/(1+ exp ( (e - enew )/temperature ));
+}
+
+void copy_bind(vector<vector <int> > &temp)
+{
+		for(int i=0; i<bind.size(); i++)
+		{
+				for(int j = 0; j < bind[i].size(); j++)
+				{
+					temp[i][j] = bind[i][j];
+				}
+		}
+}
+
+//Returns a vector of size bind and all initialized to 0
+vector< vector<int> > return_bind()
+{
+	vector<vector<int> > temp;
+	temp.resize(phase);
+	for(int i=0; i<phase ; i++)
+		temp[i].resize(reg);
+	for(int i=0; i<temp.size(); i++)
+	{
+			for(int j = 0; j < temp[i].size(); j++)
+			{
+				temp[i][j] = 0;
+			}
+	}
+	return temp;
 }
 /*********************function for optimal_bind()**************/
 inline int up_left_cell_entropy(int i, int j)
@@ -1362,4 +1444,65 @@ void center_center(double alpha, double beta)
 	//printVector(temp_sch);
 	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
 	cout<<"\t"<<total_entropy();
+}
+
+void simulated_annealing()
+{
+	// current state in bind
+	int eold = total_entropy();
+	
+    vector <vector<int> >sbest = return_bind(); 
+    copy_bind(sbest);
+    
+    int ebest = total_entropy(sbest);
+    int kmax = 10000000;
+    
+	for(int i=1; i<kmax; i++)
+	{
+		double temperature = (double)i/kmax;
+		
+		int row = rand()%phase;
+		int col1;
+		int col2;
+		while(1)
+		{
+			col1 = rand()%reg;
+			if(bind[row][col1]!=0)
+				break;
+		}
+		
+		while(1)
+		{
+			col2 = rand()%reg;
+			if(col2!= col1 && bind[row][col2]!=0)
+				break;
+		}
+		
+		//before
+		int before = cell_entropy(row , col1) + cell_entropy(row , col2);
+		int temp = bind[row][col1];
+		bind[row][col1] = bind[row][col2];
+		bind[row][col2] = temp;
+		//after
+		int after = cell_entropy(row , col1) + cell_entropy(row , col2);
+		
+		int enew = eold - 2*before + 2*after;
+		
+		if(enew < ebest)
+		{
+			ebest = enew;
+			copy_bind(sbest);
+			eold = enew;
+		}else if(prob(eold,enew,temperature)> random())
+		{
+			eold = enew;
+		}else
+		{
+			temp = bind[row][col1];
+			bind[row][col1] = bind[row][col2];
+			bind[row][col2] = temp;		
+		}
+	}
+	//cout<<"\t"<<total_entropy() << "\t"<<ebest << "\t" << total_entropy(sbest) ;
+	cout<<"\t"<<ebest ;
 }
