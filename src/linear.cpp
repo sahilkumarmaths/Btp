@@ -208,7 +208,7 @@ void execute_functions()
 	while(t--)
 	{
 		init();
-		cout << id<<"\t"<<reg<<"\t"<<phase<<"\t"<<process;
+		cout<<id<<"\t"<<reg<<"\t"<<phase<<"\t"<<process;
 		random_init();
 		valid();
 		
@@ -593,11 +593,12 @@ void optimal_bind_sub(vector<vector<int> >temp_vector , vector<vector<int> > tem
 /*****************function for left_left()********************/
 bool compare_big_sort(struct rect const& i, struct rect const& j) 
 {
-    if(i.area>j.area)
+	
+    if(i.area > j.area)
 		return true;
-	else if(i.area==j.area)
+	else if(i.area == j.area)
 	{
-		if(i.height<=j.height)
+		if(i.height<j.height)
 			return true;
 		else
 			return false;
@@ -674,6 +675,103 @@ struct rect one_rect(vector<int> hist, int ide)
     return big_rect_obj;
 }
 
+//Returns the maximum area rectangle object for a particular array of inputs
+struct rect one_rect_opt(vector<int> hist, int ide,int k)
+{
+    stack<int> s;
+    int tp; 
+    int area_with_top;
+    int n = hist.size();
+    int i = 0;
+    int width = 0;
+    int height = 0;
+    int new_width= 0;
+    int new_height = 0;
+    
+    int max_area = 0;
+    int max_height = 0;
+    int max_width = 0;
+    while (i < n)
+    {
+        if (s.empty() || hist[s.top()] <= hist[i])
+            s.push(i++);
+ 
+        else
+        {
+            tp = s.top();
+            s.pop();
+ 
+            width = hist[tp];
+            height = s.empty() ? i : i - s.top() - 1;
+            
+            if(height >= width + k)
+            {
+              new_height = height;
+              new_width = width;
+
+            }else
+            {
+              new_height = height;
+              new_width = height-k < width ? height-k : width ;
+              new_width = new_width > 0 ? new_width : 0;
+              
+            }
+            
+            area_with_top = new_height*new_width;
+
+            if (max_area < area_with_top || ( max_area == area_with_top && ( max_height < new_height || new_width < max_width)  ))
+            {
+                max_area = area_with_top;
+                max_height = new_height;
+                max_width = new_width;
+            }
+        }
+    }
+ 
+    while (s.empty() == false)
+    {
+        tp = s.top();
+        s.pop();
+        
+        width = hist[tp];
+        height = s.empty() ? i : i - s.top() - 1;
+            if(height >=width + k)
+            {
+              new_height = height;
+              new_width = width;
+
+            }else
+            {
+              new_height = height;
+              new_width = height-k < width ? height-k : width ;
+              new_width = new_width > 0 ? new_width : 0;
+              
+            }
+            
+            area_with_top = new_height*new_width;
+
+            if (max_area < area_with_top || ( max_area == area_with_top && ( max_height < new_height || new_width < max_width)  ))
+            {
+                max_area = area_with_top;
+                max_height = new_height;
+                max_width = new_width;
+            }
+    }
+    
+    if(max_area == 0)
+    {
+      max_height = max_width = 0;
+    }
+    
+    struct rect big_rect_obj;
+    big_rect_obj.id = ide;
+    big_rect_obj.height = max_width;
+    big_rect_obj.area =  max_area;
+    
+    return big_rect_obj;
+
+}
+
 /*
  * Returns true if the array is empty means contains all zeroes
  */
@@ -709,7 +807,8 @@ vector <struct rect> create_rect_list()
 				break;
 			else
 			{
-				struct rect rect_temp = one_rect(temp,sch[0][i]);
+				//struct rect rect_temp = one_rect(temp,sch[0][i]);
+				struct rect rect_temp = one_rect_opt(temp,sch[0][i],-1);
 				if(rect_temp.area == 0)
 					break;
 				else
@@ -723,7 +822,24 @@ vector <struct rect> create_rect_list()
 			}
 		}
 	}
+	
+	
+	
+	/*cout<<"ghewari \n";
+	for(int i=0; i<rect_list.size();i++)
+	{
+		cout<<"ID: "<<rect_list[i].id<<" Area: "<<rect_list[i].area<<" Height: "<<rect_list[i].height<<"\n";
+	}
+	cout<<" \n AfterSort\n";
+	*/
 	sort(rect_list.begin(), rect_list.end(), compare_big_sort);
+	
+	/*cout<<"finished sorting\n";
+	for(int i=0; i<rect_list.size();i++)
+	{
+		cout<<"ID: "<<rect_list[i].id<<" Area: "<<rect_list[i].area<<" Height: "<<rect_list[i].height<<"\n";
+	}*/
+	
 	return rect_list;
 }
 
@@ -1127,11 +1243,36 @@ void left_left()
 		arr.push_back(i);
 	}
 	
+	for(vector <struct span>::reverse_iterator rit=span_list.rbegin(); rit!=span_list.rend(); ++rit )
+	{
+		//cout<< "ID: "<<(*rit).id<< " Start: "<<(*rit).start<< " end: "<<(*rit).end<< " Width: "<<(*rit).width<<"\n";
+		vector<int>::iterator it = find(arr.begin(),arr.end(), (*rit).id );
+		if(it!=arr.end())
+		{
+			arr.erase(it);
+			arr.push_back((*rit).id);
+		}else
+		{
+				
+				cout<<"Cannot erase:" << (*rit).id << ":   " ;
+		}
+	}
+	
+	/*
 	for(int i=span_list.size()-1;i>=0; i--)
 	{
-		arr.erase(find(arr.begin(),arr.end(), span_list[i].id ));
-		arr.push_back(span_list[i].id);
-	}
+		vector<int>::iterator it = find(arr.begin(),arr.end(), span_list[i].id );
+		if(it!=arr.end())
+		{
+			arr.erase(find(arr.begin(),arr.end(), span_list[i].id ));
+			arr.push_back(span_list[i].id);
+		}else
+		{
+				
+				cout<<"Cannot erase";
+		}
+		
+	}*/
 	
 	/*cout<<"Final reverse order\n";
 	for(int i=0; i<arr.size(); i++)

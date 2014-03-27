@@ -82,6 +82,7 @@ bool compare_big_sort(struct rect const&, struct rect const& );
 void left_left_init();
 //Returns the maximum area rectangle object for a particular array of inputs
 struct rect one_rect(vector<int> , int);
+struct rect one_rect_opt(vector<int> , int,int);
 //Makes all the rectangles and fills the list
 vector <struct rect> create_rect_list();
 //Returns true if the array is empty means contains all zeroes
