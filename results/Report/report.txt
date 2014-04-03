@@ -1,0 +1,366 @@
+ABSTRACT:
+Modern processors contain multiple cores. These multicore system enables us to execute multiple applications concurrently. These applications may require more than one phase for their execution. The processor requirement for each phase can vary for an application. These applications are scheduled and binded on this multicore system for execution. So good scheduling and binding strategy can help in achieving high performance and increasing overall throughput of the system.
+
+<previous work>
+
+In this paper, we proposed {5} new approaches for binding of multi-phase applications on multicore linear architecture. Proposed approaches use bipartite matching, biggest block creation etc. to bind applications onto linear multicore architecture. These approaches bind the applications on nearby processors and hence reduces the overall data movement and thus providing speedup. We demonstrate the results using dataset scaling to real life processor requirements.<increase>
+
+GENERAL TERMS:
+Algorithms, Design, Performance, Experimentation
+
+KEYWORDS:
+Multicore processor systems, Linear Architecture, Bipartite matching, Biggest block creation
+
+INTRODUCTION:
+1. MULTICORE ARCHITECHTURES:
+
+    Latest processors come with large number of cores. Many cores are embedded on a single silicon chip. The cores are interconnected in various network topologies or multicore architectures.  Figure a) shows the different multicore architectures. Linear architecture, mesh architecture, hypercube architecture and star architecture are common these days. Multiprocessing, speedup and high throughput can be achieved using multicore systems. These systems run multiple instructions at the same time and executes large number of applications in parallel.
+    Fig: ALL ARchitechtures
+
+
+2. MULTIPHASE APPLICATIONS:
+  Most of applications run time characteristics exhibit time varying phase behavior [1, 2]. Applications exhibit different performance metrics during their execution. The various performance metrics can be ILP (Instruction level parallelism), IPC (Instructions per clock period), Hits (number of L1 cache hits), etc. The "phase" of an application is the time interval during which value of the considered performance metrics remains almost constant. So the whole program can be expressed in terms of any performance metric to recognize the various program execution phases. As an example, in [3], Banerjee et. al. detected different phases of applications  as shown in Table I
+    FIg: NUMBER OF PHASES benchmark
+ 
+3. APPLICATION SCHEDULING AND BINDING:
+
+A multiphase application may have variable core requirement at various phases of its execution. If the resources are allocated without considering this variable core requirement at different phases of the application then the system will remain under utilized. Thus, scheduling and binding strategy considering multiphase behavior plays an important role in achieving high performance and throughput. Scheduler decides the subset of tasks, the multiphase schedule of applications which are going to be executed on the cores. After the multiphase multiprocess schedule is generated the processor binding algorithm comes into picture. Processor binding algorithm  maps or binds the scheduled processes on the multicore system. This algorithm specifies the binding location of the processor on which the task to be binded. This binding is done so that the same application’s tasks are binded nearby. If the cores assigned to the same application are spread far away from each other then their will be more communication delay. So the algorithm should try to reduce the communication delay.
+
+Other consideration while binding processed is to reduce the internal and external fragmentation. Internal fragmentation occurs if more number of the cores are allocated to a process than the number of cores required. External fragmentation occurs if there are enough number of free cores to bind the task but the free cores are not continuous thus resulting in far away binding of the application increasing communication delay.
+
+The main contributions of this paper are (a) a new era of scheduling and binding multi-phase applications on to mesh multicore architecture, (b) surveyed of scheduling multi-phase application (parallel chain) on to multicore architecture and their complexity, (c) Modeling task binding problem in information theoretic model, geometric model and sequence alignment model to understand the problem from different prospective and (d) also we have proposed mixed of critical path and dynamic programming methodology for scheduling multi-phase application on to multicore, and to bind scheduled application to multicore mesh architecture a viable and easy mixed of sequence alignment model and geometric model is proposed and used.
+
+<Contribution> 
+<Organization> 
+
+<Motivation>
+
+
+ASSUMPTION:
+
+II. ASSUMED SYSTEM AND APPLICATION MODEL
+A. System model
+In this paper, we are working on linear architecture of processors. There are N processing elements(PEs or cores or processors)(c0 c1,c2 ...cn-1) interconnected with each other linearly. The assumed communication infrastructure consists of a data network and a control network, each containing routers and channels connected to the cores via standard network interfaces (NIs) as described in [4].<think>
+
+B. Application model
+All applications are composed of multiple phases. Each phase of an application may require more than one processor. Each phase has two parameters associated with it. One is number of processors that application requires in the phase and other is processing time to complete the phase. As shown in Figure 2  application A0 requires 7 processors for 4 time units in phase one,  requires 4 processor for 3 time units in phase 2. Application A0 has 3 phases, A1 has 4, A2 has 2 and A 3 has 5 phases. The arrow representsthe dependency among phases. Next phase cannot start before the
+previous phases have finished execution.
+  FIG: Multi-phase running behavior of applications
+  
+Let us assume that the schedule consists of set of M applications { a0 , a1 , a2 , .., aM−1 } and K phases {t0, t1 .. tK-1 }. The core requirement for application ai at tj phase is pij. The time to complete for each phase of all applications is same. The total number of cores requirement of any phase for all applications is less than or equal to the total number of available cores.
+
+
+Data Movement Factor:
+<If the binding is given then we want to assign the processors where the applications in the current phase will write to and the next phase they will read from and what will be the data movement factor for the given binding.>
+
+<decide figure AND EXAMPLE>
+At the start of each phase, cores alloted to each application read data from a specific core where the same application has written data in previous phase. At the end of each phase, cores alloted to each application write data to a specific core from where the cores of same application will read data in next phase. So the data movement overhead in each phase is defined as the sum of above both data reading and writing overheads in that phase. So total Data movement factor(or overhead) is defined as sum of all data movement overheads in each phase.
+
+In each phase, the cores of the same application writes 
+
+Lets consider ith phase in which application A is binded at locations {l1,l2,..,lm} and in (i+1)th phase the same application is binded at {l'1,l'2...,l'n}
+Now the cores of application in ith phase write at location x(say) from which the cores of same spplication in (i+1)th phase read from. So we are minizing the sum of squares of data movement.
+
+p=no of cores
+li = [0,p-1]
+l'i = [0,p-1]
+
+dmf=summision((x-li)^2)+summision((x-l'i)^2;
+
+Differentiating this we will get
+
+x=ceil(summision(li)+summision(l'i))/(m+n);
+
+Substituing x in dmf eq we will get dmf of that phase.
+
+For the last phase there won't be any reading overhead of next phase so dmf in that case will become:
+
+x=ceil(summision(li);
+dmf=summision((x-li)^2);
+
+So total dmf=summision(dmfi);
+
+Entropy:
+<decide figure AND EXAMPLE>
+It is a messure of how closely the cores alloted to the same application are binded in the same phase and neighbouring phases. We define total entopy of the binding by the sum of the core entropies of all the phases.
+
+Entropy of jth core in ith phase: 
+cell_entropy[i][j]= 1{bind[i][j], bind[i][j+1]}  + 1{bind[i][j], bind[i][j-1]} + 1{bind[i][j], bind[i+1][j]} + 1{bind[i][j], bind[i-1][j]}
+
+Total Entropy of all the phases:
+Bind Entropy = sumi(sumj (cell_entropy[i][j]))
+
+In this paper, We try to minimize the total overall entropy that is bind entropy.
+
+
+/**************************/
+
+PREVIOUS WORK<1 COL>:
+
+As stated above, our problem is the binding of applications on the cores at all the phases. While binding the applications on any phase we need to keep in mind the binding of the aplicatons on the neighboring phases i.e on the next and the previous phases for the minimization of dmf. So for minimization of overall dmf while binding the applications on the current phase we eventually need to consider the binding of applications on all the phases. While doing this for a particular application for a particualar phase we may end up leaving some cores which may be filled by some other application so that identical applications are alligned in successive columns. This problem is exaclty similair to Multiple sequence alignment(MSA) problem. Finding optimal solution of MSA problem is computationally difficult. This problem is already proved to be NP-complete.[7][8]. So our problem i.e. finding an optimal binding of applications on the linear architechture is NP complete.
+
+
+References:
+Wang L, Jiang T. (1994). "On the complexity of multiple sequence alignment". J Comput Biol 1 (4): 337–48. doi:10.1089/cmb.1994.1.337. PMID 8790475.
+Jump up ^ Elias, Isaac (2006). "Settling the intractability of multiple alignment". J Comput Biol 13 (7): 1323–1339. doi:10.1089/cmb.2006.13.1323. PMID 17037961.
+
+general schedule+binding concept ...DAG graph...reference
+
+SCHEDULING AND MAPPING OF MULTI PHASE APPLICATION TO MULTIPROCESSOR<2 PAGE>:
+1. SCHEDULING<detail> <formal definition><formal image>:  Scheduling is an important aspect of operating system. By this threads and processes are given access to system resources. These system resources can be processor time, communications bandwidth, memory address ranges etc. This is done to balance load to achieve a target quality of service. It helps in achieving multitasking and multiplexing. 
+
+In general, there are multiple processes that needs execution. The processes can communicate with each other. These can share data with each other. Within one process there can be multiple inherent depenedencies. A process consist of tasks with precedence constraint is modeled as a DAG (directed acyclic graph). DAG’s nodes represent tasks of the application and directed edge represent communication or dependency between tasks. The execution of these tasks can be divided into various phases and for these phases these tasks can have multi processor requirement. So for a given set of N processes, these processes are divided into various sub-tasks which form the DAG and this dag is scheduled to run on a multicore system. The schedule fulfils the dependency criteria among the various processes. The general schedule of processes can be seen in figure. 
+  Figure: Schedule of processes.
+
+2. MAPPING<detail><formal definition> <mapping on general architectures> <communication delay><data sharing>
+Mapping is another very crucial step in parallel computing paradigm. It directly afects the performance of the parallel computing system.
+The objective is to find a mapping that maximizes the throughput of the system. It is a method of arranging applications on cores for their independent execution on multicore platforms.
+So given a schedule i.e. the applications with their processor requirements in each phase, mapping of aplications means arranging applications on the cores by using any mapping algorithm.
+
+Mapping of applications is largly dependent on the architecture in consideration.
+
+Communication delay:
+The architecture which has more connected cores will have less communication delay that the one having less
+connected cores i.e. if the communication distance between cores in one architecture is less than the communication distance between cores in the other architecture than the communication 
+will be fast in first architecture as compared to the other architecture.
+
+For example, Hypercube architecture will have less communication delay as compared to Linear architecture.
+
+MAPPING APPROACHES AND OPTIMIZATIONS<3 PAGES>:
+Let the schedule consists of set of m applications{ a0 , a1 , a2 , .., am−1 } and k phases {t0, t1 .. tk-1 }. The core requirement for application ai at tj phase is pij.There are n processing elements(PEs or cores or processors)(c0 c1,c2 ...cn-1) interconnected with each other linearly.
+
+1. RANDOM ALGORITHM:
+  Input: Schedule (sch) of the processes.
+  Output: Binding(b) and total entropy(e).
+  
+  PSEUDOCODE:
+    RANDOM_ALGO( sch ):
+      generate a random permutation of applications.  
+      b = binding of the applications serially onto the cores in the generated order in each phase.
+      RANDOM_ALGO_HELPER(b)
+      
+    RANDOM_ALGO_HELPER(b):
+      e = intial entropy of the binding b.
+      l = large number
+      for i in [1 to l]:
+        select randomly a row(r) and two columns(c1,c2).
+        swap the elements b[r][c1] and b[r][c2].
+        e' = new entropy of the binding.
+        if e' < e
+          e' = e
+        else
+          swap the elements b[r][c1] and b[r][c2].
+      output the total entropy e and binding b.
+      
+In this algorithm we minimize the overall entropy of the binding. We start with a random generated binding of processes to the cores. Then we calculate the intial total entropy of the binding. We randomly select a row (i.e phase) and two columns(i.e cores on which applications are bind).We try to swap the application core binding for these chosen applications for that phase and again caclulate the new total entropy(e') of the binding and if this e' is less than e then we accept the change else we return to the previous configuration. This we do for large number of times till the value converges.This way by random swapping we are bound to get caught in some local minima or best global minima for some starting configuration. Time complexity of the algorithm is O(m + k*n + l). Since m,k,n,l are constants so the overall time complexity is O(1). The new entropy calculation can be done in O(1) time by exploiting the relation between the new entropy and the previous entropy.
+
+2. LEFT RIGHT ALGORITHM:
+  PSEUDOCODE:
+
+  Input: Schedule (sch) of the processes.
+         Parameter(param) for the cost analysis
+  Output: Binding(b) and total entropy(e).
+  LEFT_RIGHT_ALGO(sch,param):
+    list bb = BIGGEST_BLOCK(sch);
+    list sp = GENERATE_SPAN(bb);
+    bind b;
+    [rem_sch,free_sppace,b ]= phase_one(sch,sp,b);
+    b = phase_two(rem_sch,free_space,b,param)
+    e = calculate total entropy of b
+    return b, e
+    
+  Input: sch schedule of applications
+         sp span list of the applications
+         b binding of the elements
+  Output: rem_sch remaining schedule left yet to be binded
+          free_space it maps the coninuous free space between the two binded applications
+          b binding
+  phase_one(sch,sp,b):
+    prev = 0;
+    for each elem in the sp:
+      elem.start = prev+1
+      elem.end = elem.start + elem.height;
+      prev = elem.end
+    
+    for i in sp.size():
+      if i%2==0:
+        bind the application on the cores from sp[i].start i.e. from left to right
+        in each phase according to schedule not overshooting the sp[i]end.
+      else
+        bind the application on the cores from sp[i].end i.e. from right to left
+        in each phase according to schedule not overshooting the sp[i].start.
+    free_space = free_cores in the bind in the each phase.   
+    rem_sch = schedule remaining after binding initially.
+    return rem_sch, free_space, b
+          
+  Input: rem_sch remaining schedule left yet to be binded
+          free_space it maps the coninuous free space between the two binded applications
+          b binding
+  Output: b final binding of applications on the cores
+  phase_two(rem_sch,free_space,b,param):
+  alpha = param
+  beta = 1-param
+  while free_space[:][:] != 0:
+  
+    for each app in rem_sch:
+      for each space in free_space:
+        value[app][space] = 0
+        for phase in range [1,k]:
+          if space[phase] - app[phase] >= 0
+            value[app][space] += alpha*(space[phase] - app[phase])
+          else
+            value[app][space] += beta*(app[phase]-space[phase] )
+    
+    assign the not alloted application with minimum value to the free_space
+    bind the applications alloted to the the free_space on the cores according to the schedule for each phase
+    update free_space, bind, rem_sch
+  return b    
+
+  Input: Schedule (sch) of the processes.
+  Output: list of the rectangles
+  BIGGEST_BLOCK(sch):
+    list l = {}
+    for i in [ 1 to m]:
+      while sch[1:k][i]!=0 : 
+        rect = LARGET_AREA_RECT(sch[1:k][i])
+        l.insert(rect)
+        for j in [1:k]
+          sch[j][i] = (sch[j][i] - rect.height) >=0 ? (sch[j][i] - rect.height) : 0
+    sort list using rect area
+    return list
+    
+  Input: hist is the array containing the core requirement for the phase of an application.
+  Output: rect with largest area
+  LARGEST_AREA_RECT(hist):
+    rect = rectangle with largest area in hist such that width(phase) > height(core requirement). 
+    return rect
+    
+  Input: bb is list of rectangles sorted wrt area
+  Output: span list that spans the cores
+  GENERATE_SPAN(bb):
+    list sp = {}
+    for each rect in bb:
+      sum = total sum of the height of all elements in sp
+      remaining = n - sum
+      
+      if rect.id does not exists in sp
+        if rect.height <= remaining
+          insert rect in sp with height = rect.height 
+        else
+          insert rect in sp with height = remaining
+            break
+      else
+        if rect.height <= remaining
+          increase the height of the elem with rect.height 
+        else
+        increase the height of the elem with remaining
+          break
+    return sp 
+    
+3. CENTER CENTER ALGORITHM:
+  PSEUDOCODE:
+  Input: Schedule (sch) of the processes.
+         Parameter(param) for the cost analysis
+  Output: Binding(b) and total entropy(e).
+  CENTER_CENTER_ALGO(sch,param):
+    list bb = BIGGEST_BLOCK(sch);
+    list sp = GENERATE_SPAN(bb);
+    bind b;
+    [rem_sch,free_sppace,b ]= phase_one_center(sch,sp,b);
+    b = phase_two(rem_sch,free_space,b,param)
+    e = calculate total entropy of b
+    return b, e
+
+phase_one_center(sch,sp,b):
+    prev = 0;
+    for each elem in the sp:
+      elem.start = prev+1
+      elem.end = elem.start + elem.height;
+      prev = elem.end
+    
+    for i in sp.size():
+      if i%2==0:
+        bind the application on the cores from (sp[i].start + sp[i].end)/2 i.e. from middle
+        and extending both sides i.e. to start and end and not overshooting them in each phase.
+      else
+        bind the application on the cores from sp[i].end i.e. from right to left
+        and extending both sides i.e. to start and end and not overshooting them in each phase.
+
+    free_space = free_cores in the bind in the each phase.   
+    rem_sch = schedule remaining after binding initially.
+    return rem_sch, free_space, b    
+        
+4. BIPARTITE ALGORITHM
+def calculateWeight(i,j):
+	avgI=Average cores requirement of application i
+	avgJ=Average cores requirement of application j
+	weight=0
+	S[k][i] = cores requirement of application i in kth phase
+	for k in range(0,phaseCount):
+		weight+=(S[k][i]-avgI)*(S[k][j]-avgJ)
+	return weight
+
+def Bipartite_Algo(Schedule):
+	while(No_Of_Applications_in_Schedule!=1):
+		for all (i,j) pair:
+			Edge_Weight_Between_i_and_j=calculateWeight(i,j)
+		Construct graph G={applications,edges}
+
+		perfect_matched_edges=Blossom_Algorithm(G)
+		new_schedule=merge schedule corresponding to the applications i & j if there is edge between i & j in perfect_matched_edges
+		Store the perfect_matched_edges to be used later
+	
+	binding_pattern=Finally the stored information will give the sequence in which the of applications should be binded.={ABCDEFGH}
+	pairs={AB,CD,EF,GH}
+	
+	for each (i,j) in pairs:
+		maxpairReq[ij]=Maximum_processors_needed to bind p.i application as well as p.j application
+
+	for (i,j) in pairs:
+		initialBinding=initialBinding + (bind ith application from left and jth application from right in maxpairReq[ij] processors in each phase)
+
+	extraColumns=Number_Of_Columns_Used-Number_Of_Processors
+
+	finalBinding=Remove extraColumns which are least binded and bind those applications the required cores linearly
+
+	return finalBinding
+
+EXPERIMENT AND RESULT ANALYSIS<2 PAGE><GRAPH><AND IT'S EXPLATION><WHY ONE PERFORMS BETTER AND OTHER DOESN'T ><IMPLEMENTATION DIFFERENCE AND WHY ONE ALGO IS  BETTER><INERPRETATION OF CONCLUSION>:
+
+CONCLUSION AND FUTURE WORK<1 COLUMN>:
+
+REFERENCES: 
+
+
+
+http://complexhpc.org/events/lisbon/PDF/Runger.pdf for motivation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  
+
