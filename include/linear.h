@@ -89,7 +89,8 @@ vector <struct rect> create_rect_list();
 bool isempty(vector<int>);
 //Makes the final span list for filling binding the rectangles
 vector <struct span> fill_span_list(vector <struct rect>);
-
+void print_span_list(vector <struct span>);
+void print_rect_list(vector <struct rect>);
 /*****************function for left_right()********************/
 /*
  * start	:	Start of Free Space

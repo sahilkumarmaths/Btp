@@ -807,8 +807,8 @@ vector <struct rect> create_rect_list()
 				break;
 			else
 			{
-				//struct rect rect_temp = one_rect(temp,sch[0][i]);
-				struct rect rect_temp = one_rect_opt(temp,sch[0][i],-1);
+				struct rect rect_temp = one_rect(temp,sch[0][i]);
+				//struct rect rect_temp = one_rect_opt(temp,sch[0][i],-1);
 				if(rect_temp.area == 0)
 					break;
 				else
@@ -908,6 +908,25 @@ vector <struct span> fill_span_list(vector <struct rect> rect_list)
 	return span_list;
 }
 
+void print_span_list(vector <struct span> temp)
+{
+		cout<<"\nSpan List:\n";
+		for(int i=0; i<temp.size();i++)
+		{
+				cout<<"ID: "<<temp[i].id<<" Start: "<<temp[i].start<<" End: "<<temp[i].end <<" Width: "<<temp[i].width<<"\n";
+		}
+		cout<<"\n";
+}
+void print_rect_list(vector <struct rect> temp)
+{
+		cout<<"\n\nRectangle List:\n";
+		for(int i=0; i<temp.size();i++)
+		{
+				cout<<"ID: "<<temp[i].id<<" Area: "<<temp[i].area<<" Height: "<<temp[i].height <<"\n";
+		}
+		cout<<"\n";
+	
+}
 /*****************function for left_right()********************/
 
 vector<vector<int> > exchangeRowColumn(vector<vector<int> > arr)
@@ -1157,6 +1176,8 @@ void random_shuffle()
 			bind[row][col2] = temp;		
 		}
 	}
+	//cout<<"AfterRandom Shuffle:\n";
+	//printBind();
 	cout<<"\t"<<total_entropy();
 }
 
@@ -1341,7 +1362,9 @@ void left_right(double alpha, double beta)
 	
 	//Getting span_list
 	vector <struct rect> rect_list = create_rect_list();
+	//print_rect_list(rect_list);
 	vector <struct span> span_list = fill_span_list(rect_list);
+	//print_span_list(span_list);
 	vector<vector<space_col> > free_space;
 	
 	//Initializing the free_space vector
@@ -1434,12 +1457,15 @@ void left_right(double alpha, double beta)
 			}
 		}
 	}
-	
+	//cout << "\n\nBind After Phase 1 Left Right\n\n";
+	//printBind();
 	//printFreeSpace(free_space);
 	//cout<<"\ntemporary schedule After\n";
 	//printVector(temp_sch);
 	
 	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
+	//cout << "\n\nBind After Phase 2 Left Right\n\n";
+	//printBind();
 	cout<<"\t"<<total_entropy();
 }
 
@@ -1583,8 +1609,13 @@ void center_center(double alpha, double beta)
 	//printFreeSpace(free_space);
 	//cout<<"\ntemporary schedule After\n";
 	//printVector(temp_sch);
+	//cout << "\n\nBind After Phase 1 Center Center\n\n";
+	//printBind();
+	
 	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
-	cout<<"\t"<<total_entropy();
+	//cout << "\n\nBind After Phase 2 Center Center\n\n";
+	//printBind();
+	//cout<<"\t"<<total_entropy();
 }
 
 void simulated_annealing()
