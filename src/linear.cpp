@@ -1362,9 +1362,9 @@ void left_right(double alpha, double beta)
 	
 	//Getting span_list
 	vector <struct rect> rect_list = create_rect_list();
-	//print_rect_list(rect_list);
+	print_rect_list(rect_list);
 	vector <struct span> span_list = fill_span_list(rect_list);
-	//print_span_list(span_list);
+	print_span_list(span_list);
 	vector<vector<space_col> > free_space;
 	
 	//Initializing the free_space vector
@@ -1457,15 +1457,15 @@ void left_right(double alpha, double beta)
 			}
 		}
 	}
-	//cout << "\n\nBind After Phase 1 Left Right\n\n";
-	//printBind();
+	cout << "\n\nBind After Phase 1 Left Right\n\n";
+	printBind();
 	//printFreeSpace(free_space);
 	//cout<<"\ntemporary schedule After\n";
 	//printVector(temp_sch);
 	
 	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
-	//cout << "\n\nBind After Phase 2 Left Right\n\n";
-	//printBind();
+	cout << "\n\nBind After Phase 2 Left Right\n\n";
+	printBind();
 	cout<<"\t"<<total_entropy();
 }
 
@@ -1609,12 +1609,12 @@ void center_center(double alpha, double beta)
 	//printFreeSpace(free_space);
 	//cout<<"\ntemporary schedule After\n";
 	//printVector(temp_sch);
-	//cout << "\n\nBind After Phase 1 Center Center\n\n";
-	//printBind();
+	cout << "\n\nBind After Phase 1 Center Center\n\n";
+	printBind();
 	
 	phase_2(exchangeRowColumn(temp_sch), free_space,alpha,beta);
-	//cout << "\n\nBind After Phase 2 Center Center\n\n";
-	//printBind();
+	cout << "\n\nBind After Phase 2 Center Center\n\n";
+	printBind();
 	//cout<<"\t"<<total_entropy();
 }
 
